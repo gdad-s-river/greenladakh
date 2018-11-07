@@ -32,8 +32,34 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "devDependencies": {
+    "kcd-scripts": "^0.45.0",
     "prettier": "^1.14.2"
   },
+  "eslintConfig": {
+    "extends": "./node_modules/kcd-scripts/eslint.js",
+    "rules": {
+      "import/no-useless-path-segments": "off",
+      "import/no-unassigned-import": "off",
+      "import/no-extraneous-dependencies": "off",
+      "max-lines": "off",
+      "max-lines-per-function": "off",
+      "prefer-object-spread": "true",
+      "no-eq-null": "off",
+      "eqeqeq": "off",
+      "react/jsx-indent": "off",
+      "complexity": [
+        "error",
+        12
+      ]
+    }
+  },
+  "eslintIgnore": [
+    "node_modules",
+    "coverage",
+    "dist",
+    ".docz",
+    "typings"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/gatsbyjs/gatsby-starter-default"

@@ -1,37 +1,38 @@
-import React from 'react'
-import { Link } from 'gatsby'
+import React from 'react';
+import PropTypes from 'prop-types';
+import { Link } from 'gatsby';
+import styled from 'styled-components';
+import verticalAlign from '../commonStyles/VerticalAlign';
+
+const StyledHeaderWrapper = styled(verticalAlign('div'))`
+  background: #dcedc8;
+  opacity: 0.5;
+`;
+
+const StyledHeading = styled.h1`
+  margin: 0;
+  text-align: center;
+  padding: 1.45rem 1.0875rem;
+`;
 
 const Header = ({ siteTitle }) => (
-  <div
-    style={{
-      background: '#DCEDC8',
-      position: 'absolute',
-      width: '100%',
-      top: '50%',
-      transform: 'translateY(-50%)',
-      opacity: 0.5,
-    }}
-  >
-    <div
-      style={{
-        margin: '0 auto',
-        maxWidth: 960,
-        padding: '1.45rem 1.0875rem',
-      }}
-    >
-      <h1 style={{ margin: 0, textAlign: 'center' }}>
-        <Link
-          to="/"
-          style={{
-            color: 'black',
-            textDecoration: 'none',
-          }}
-        >
-          {siteTitle}
-        </Link>
-      </h1>
-    </div>
-  </div>
-)
+  <StyledHeaderWrapper>
+    <StyledHeading>
+      <Link
+        to="/"
+        style={{
+          color: 'black',
+          textDecoration: 'none',
+        }}
+      >
+        {siteTitle}
+      </Link>
+    </StyledHeading>
+  </StyledHeaderWrapper>
+);
 
-export default Header
+Header.propTypes = {
+  siteTitle: PropTypes.string.isRequired,
+};
+
+export default Header;
