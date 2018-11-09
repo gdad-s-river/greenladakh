@@ -1,11 +1,18 @@
-import React, { useState, Fragment, useRef, useEffect } from 'react';
+import { graphql, StaticQuery } from 'gatsby';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { setConfig } from 'react-hot-loader';
+import { config, Spring } from 'react-spring';
 import styled from 'styled-components';
-import { StaticQuery, graphql } from 'gatsby';
-import Layout from '../components/layout';
-import mountainsSketch from '../utils/mountainsSketch';
 import verticalAlign from '../commonStyles/VerticalAlign';
 import Header from '../components/header';
+import Layout from '../components/layout';
+import mountainsSketch from '../utils/mountainsSketch';
+
+const StyledHomeHeader = styled(verticalAlign('div'))`
+  background: ${props => props.background};
+  top: ${props => props.top};
+  opacity: ${props => props.opacity};
+`;
 
 setConfig({ pureSFC: true });
 
@@ -52,7 +59,34 @@ const GreenLadakhHome = () => {
                 }}
               />
               {mountainsPainted ? (
-                <Header siteTitle={data.site.siteMetadata.title} />
+                <Spring
+                  config={config.gentle}
+                  from={{
+                    top: '50%',
+                    background: '#dcedc8',
+                    opacity: 0.5,
+                    color: 'black',
+                  }}
+                  to={{
+                    top: '7%',
+                    background: '#8aab71',
+                    opacity: 1,
+                    color: 'white',
+                  }}
+                  delay={1000}
+                >
+                  {props => {
+                    return (
+                      // TOTRY: useEffect for color, so that it's changes are reactive
+                      <StyledHomeHeader {...props}>
+                        <Header
+                          siteTitle={data.site.siteMetadata.title}
+                          color={props.color}
+                        />
+                      </StyledHomeHeader>
+                    );
+                  }}
+                </Spring>
               ) : null}
             </Fragment>
           ) : (

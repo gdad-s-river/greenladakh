@@ -1,13 +1,7 @@
-import React from 'react';
-import PropTypes from 'prop-types';
 import { Link } from 'gatsby';
+import PropTypes from 'prop-types';
+import React from 'react';
 import styled from 'styled-components';
-import verticalAlign from '../commonStyles/VerticalAlign';
-
-const StyledHeaderWrapper = styled(verticalAlign('div'))`
-  background: #dcedc8;
-  opacity: 0.5;
-`;
 
 const StyledHeading = styled.h1`
   margin: 0;
@@ -15,24 +9,29 @@ const StyledHeading = styled.h1`
   padding: 1.45rem 1.0875rem;
 `;
 
-const Header = ({ siteTitle }) => (
-  <StyledHeaderWrapper>
+const Header = ({ siteTitle, color }) => {
+  return (
     <StyledHeading>
+      {/* TODO: shift to styled-components */}
       <Link
         to="/"
         style={{
-          color: 'black',
+          color,
           textDecoration: 'none',
         }}
       >
         {siteTitle}
       </Link>
     </StyledHeading>
-  </StyledHeaderWrapper>
-);
+  );
+};
 
 Header.propTypes = {
   siteTitle: PropTypes.string.isRequired,
+  color: PropTypes.string.isRequired,
+  // style: PropTypes.shape({
+  //   color: PropTypes.string.isRequired,
+  // }).isRequired,
 };
 
 export default Header;
