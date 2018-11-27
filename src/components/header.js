@@ -1,34 +1,35 @@
 import { Link } from 'gatsby';
 import PropTypes from 'prop-types';
 import React from 'react';
-import styled from 'styled-components';
+// import styled from 'styled-components';
 
-const StyledHeading = styled.h1`
-  margin: 0;
-  text-align: center;
-  padding: 1.45rem 1.0875rem;
-`;
+// const StyledHeading = styled.h1`
+//   margin: 0;
+//   text-align: center;
+//   padding: 1.45rem 1.0875rem;
+// `;
 
-const Header = ({ siteTitle, color }) => {
+const Header = ({ children }) => {
   return (
-    <StyledHeading>
-      {/* TODO: shift to styled-components */}
+    // <StyledHeading>
       <Link
         to="/"
         style={{
-          color,
           textDecoration: 'none',
         }}
       >
-        {siteTitle}
+        {children}
       </Link>
-    </StyledHeading>
+    // </StyledHeading>
   );
 };
 
 Header.propTypes = {
-  siteTitle: PropTypes.string.isRequired,
-  color: PropTypes.string.isRequired,
+  children: PropTypes.oneOfType([
+    PropTypes.arrayOf(PropTypes.node),
+    PropTypes.node,
+    PropTypes.func
+  ]).isRequired
   // style: PropTypes.shape({
   //   color: PropTypes.string.isRequired,
   // }).isRequired,
