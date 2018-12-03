@@ -3,7 +3,7 @@ import React, {
   Fragment,
   useEffect,
   useRef,
-  useState 
+  useState
 } from 'react';
 import PropTypes from 'prop-types';
 import { setConfig } from 'react-hot-loader';
@@ -14,7 +14,7 @@ import verticalAlign from '../commonStyles/VerticalAlign';
 import Header from '../components/header';
 import Layout from '../components/layout';
 import mountainsSketch from '../utils/mountainsSketch';
-import { Link } from '@reach/router';
+import { usePrevious } from '../customHooks';
 
 // const AnimatedHeader = ({ className, children, animationProps }) => (
 //   <animated.div 
@@ -46,7 +46,27 @@ import { Link } from '@reach/router';
 //   return <element {...props}>
 // }
 
-const AnimatedStyledHeader = verticalAlign(animated.h1);
+// const AnimatedStyledHeader = verticalAlign(animated.h1);
+
+const AnimatedStyledHeader = ({onHeaderMount, ...restProps}) => {
+  const ReturnValue = verticalAlign(animated.h1);
+  const headerRef = useRef(null);
+
+  useEffect(() => {
+    const { height } = headerRef.current.getBoundingClientRect();
+    onHeaderMount(height);
+    
+    // middleWare((previousHeaderDs) =>  console.log('YEAH SCIENCE!', previousHeaderDs));
+
+    // I want here to update to and from props as well
+    // for that I also need previous props
+
+    // TOTRY: https://usehooks.com/#usePrevious
+    // to store animation props
+  }, [])
+
+  return  <ReturnValue ref={headerRef} {...restProps}/>;
+}
 
 const headerAnimatedFrom = {
   background: '#dcedc8',
@@ -67,28 +87,76 @@ const headerAnimatedTo = {
 // to use hooks with gatsbyjs
 setConfig({ pureSFC: true });
 
+// function useElDs(ref) {
+//   const { width, height } = ref.getBoundingClientRect();
+//   return { width, height };
+// }
+
 const GreenLadakhHome = () => {
   const [p5Mounted, setp5Mounted] = useState(false);
   const [mountainsPainted, setMountainsPainted] = useState(false);
+  const [headerHeight, setHeaderHeight] = useState(null);
+  const [{from, to}, setHeaderAnimatedTimeline] = useState({
+    from: headerAnimatedFrom,
+    to: headerAnimatedTo
+  });
+
+  const animationConstructionObject = {
+    from,
+    to,
+    delay: 1000
+  }
+
   const mountainRef = useRef(null);
+  const previousHeaderHeight = usePrevious(headerHeight);
+  const [animatingHeaderProps, updateAnimatingHeaderProps] = useSpring(animationConstructionObject);
+
+  // const [animeProps, setAnimeProps] = useState({
+  //   headerAnimatedFrom,
+  //   headerAnimatedTo
+  // })
+
+  function onHeaderMount(calculatedHeaderHeight){
+    setHeaderHeight(calculatedHeaderHeight);
+    // return function middleWareFor(func){
+    //   return func(previousHeaderDs);
+    // }
+    // return function someFactory() {
+    //   const prevProps = previousAnimationProps;
+    //   return manipulationFunction(prevProps) {
+    //     updateAnimatingHeaderProps(newProps);
+    //   }
+    // }
+  }
 
   useEffect(async () => {
     const p5 = await import('p5');
-    /** disabling 2 rules - new sideeffect and capital first letter of constructor */
+    /** disabling 2 rules - new sideeffect and capital firexist letter of constructor */
     setp5Mounted(true);
     // eslint-disable-next-line
     new p5.default(mountainsSketch, mountainRef.current.id);
-
     setMountainsPainted(true);
   }, []); /**
 	https://stackoverflow.com/questions/53120972/how-to-call-loading-function-with-react-useeffect-only-once
   */
-  
-  const [animatingHeaderProps] = useSpring({
-    from: headerAnimatedFrom,
-    to: headerAnimatedTo,
-    delay: 1000
-  });
+
+
+  useEffect(() => {
+    if (!!headerHeight !== !!previousHeaderHeight) {
+      
+      updateAnimatingHeaderProps({
+        ...animationConstructionObject,
+        to: {...to, transform: `translateY(${-100})`},
+      })
+
+      setTimeout(() => {
+        console.log(animatingHeaderProps);
+      }, 3000)
+    }
+  }, [headerHeight]);
+  // console.log(headerDs);
+
+  /** I HAVE TO SOMEHOW HAVE THE 'to' AND 'from' VALUE FOR TRANSLATEY */
 
   return (
     <StaticQuery
@@ -116,8 +184,11 @@ const GreenLadakhHome = () => {
                 }}
               />
               {mountainsPainted ? (
-                <Header>
-                  <AnimatedStyledHeader style={animatingHeaderProps}>
+                <Header onMount={onHeaderMount}>
+                  <AnimatedStyledHeader 
+                    style={animatingHeaderProps}
+                    onHeaderMount={onHeaderMount}
+                  >
                     {data.site.siteMetadata.title}
                  </AnimatedStyledHeader>
                 </Header>
