@@ -5,68 +5,18 @@ import React, {
   useRef,
   useState
 } from 'react';
-import PropTypes from 'prop-types';
 import { setConfig } from 'react-hot-loader';
 // import { config, Spring } from 'react-spring';
-import { useSpring, animated} from 'react-spring';
-import styled from 'styled-components';
-import verticalAlign from '../commonStyles/VerticalAlign';
+import { useSpring } from 'react-spring';
 import Header from '../components/header';
 import Layout from '../components/layout';
 import mountainsSketch from '../utils/mountainsSketch';
 import { usePrevious } from '../customHooks';
 
-// const AnimatedHeader = ({ className, children, animationProps }) => (
-//   <animated.div 
-//     className={className}
-//     style={animationProps}
-//   >
-//     {children}
-//   </animated.div>
-// );
-
-// AnimatedHeader.propTypes = {
-//   children: PropTypes.element,
-//   className: PropTypes.string,
-//   animationProps: PropTypes.object
-// }
-
-// useEffect(() => {
-//   // console.log('yeah science ', ref);
-// }, []);
-
-// const StyledHomeHeader = styled(verticalAlign(AnimatedHeader))`
-//   background: ${props => props.background};
-//   top: ${props => props.top};
-//   opacity: ${props => props.opacity};
-// `;
-
-// const AnimatedWrapper = (el, props) => {
-//   const element = animated[el];
-//   return <element {...props}>
-// }
-
-// const AnimatedStyledHeader = verticalAlign(animated.h1);
-
-const AnimatedStyledHeader = ({onHeaderMount, ...restProps}) => {
-  const ReturnValue = verticalAlign(animated.h1);
-  const headerRef = useRef(null);
-
-  useEffect(() => {
-    const { height } = headerRef.current.getBoundingClientRect();
-    onHeaderMount(height);
-    
-    // middleWare((previousHeaderDs) =>  console.log('YEAH SCIENCE!', previousHeaderDs));
-
-    // I want here to update to and from props as well
-    // for that I also need previous props
-
-    // TOTRY: https://usehooks.com/#usePrevious
-    // to store animation props
-  }, [])
-
-  return  <ReturnValue ref={headerRef} {...restProps}/>;
-}
+import {
+  Loading,
+  AnimatedStyledHeader 
+} from '../components';
 
 const headerAnimatedFrom = {
   background: '#dcedc8',
@@ -75,7 +25,8 @@ const headerAnimatedFrom = {
   textAlign: 'center',
   margin: 0,
   padding: '1.45rem 1.0875rem',
-  opacity: 0.5
+  opacity: 0.5,
+  transform: `translateY(0px)`
 };
 
 const headerAnimatedTo = {
@@ -87,46 +38,29 @@ const headerAnimatedTo = {
 // to use hooks with gatsbyjs
 setConfig({ pureSFC: true });
 
-// function useElDs(ref) {
-//   const { width, height } = ref.getBoundingClientRect();
-//   return { width, height };
-// }
-
 const GreenLadakhHome = () => {
   const [p5Mounted, setp5Mounted] = useState(false);
   const [mountainsPainted, setMountainsPainted] = useState(false);
   const [headerHeight, setHeaderHeight] = useState(null);
-  const [{from, to}, setHeaderAnimatedTimeline] = useState({
-    from: headerAnimatedFrom,
-    to: headerAnimatedTo
-  });
 
   const animationConstructionObject = {
-    from,
-    to,
+    from: headerAnimatedFrom,
+    to: headerAnimatedTo,
     delay: 1000
   }
 
   const mountainRef = useRef(null);
   const previousHeaderHeight = usePrevious(headerHeight);
-  const [animatingHeaderProps, updateAnimatingHeaderProps] = useSpring(animationConstructionObject);
+  const [animatingHeaderProps, updateAnimatingHeaderProps] = useSpring(() => animationConstructionObject);
 
-  // const [animeProps, setAnimeProps] = useState({
-  //   headerAnimatedFrom,
-  //   headerAnimatedTo
-  // })
+  /**
+   * needed, because useSpring(callback) doesn't set state automatically, a manual set is needed 
+   * even for initialization.
+   */
+  updateAnimatingHeaderProps(animationConstructionObject);  
 
   function onHeaderMount(calculatedHeaderHeight){
     setHeaderHeight(calculatedHeaderHeight);
-    // return function middleWareFor(func){
-    //   return func(previousHeaderDs);
-    // }
-    // return function someFactory() {
-    //   const prevProps = previousAnimationProps;
-    //   return manipulationFunction(prevProps) {
-    //     updateAnimatingHeaderProps(newProps);
-    //   }
-    // }
   }
 
   useEffect(async () => {
@@ -142,19 +76,17 @@ const GreenLadakhHome = () => {
 
 
   useEffect(() => {
+    /** none of the two below are null, and headerHeght has some value */
     if (!!headerHeight !== !!previousHeaderHeight) {
-      
       updateAnimatingHeaderProps({
         ...animationConstructionObject,
-        to: {...to, transform: `translateY(${-100})`},
-      })
-
-      setTimeout(() => {
-        console.log(animatingHeaderProps);
-      }, 3000)
+        to: {
+          ...headerAnimatedTo,
+          transform: `translateY(-${headerHeight})`
+        }
+      });
     }
   }, [headerHeight]);
-  // console.log(headerDs);
 
   /** I HAVE TO SOMEHOW HAVE THE 'to' AND 'from' VALUE FOR TRANSLATEY */
 
@@ -184,7 +116,7 @@ const GreenLadakhHome = () => {
                 }}
               />
               {mountainsPainted ? (
-                <Header onMount={onHeaderMount}>
+                <Header>
                   <AnimatedStyledHeader 
                     style={animatingHeaderProps}
                     onHeaderMount={onHeaderMount}
@@ -203,31 +135,6 @@ const GreenLadakhHome = () => {
     />
   );
 };
-
-const LoadingWrapper = styled.div`
-  position: relative;
-  width: 100vw;
-  height: 100vh;
-  background: #538d4e;
-  overflow: hidden;
-`;
-
-const LoadingText = styled(verticalAlign('span'))`
-  text-align: center;
-  padding: 1.45rem 1.0875rem;
-  color: white;
-  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
-    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
-  font-size: 2.25rem;
-`;
-
-function Loading() {
-  return (
-    <LoadingWrapper>
-      <LoadingText>Loading...</LoadingText>
-    </LoadingWrapper>
-  );
-}
 
 // this works
 export default GreenLadakhHome;
